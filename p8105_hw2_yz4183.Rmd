@@ -1,0 +1,46 @@
+---
+title: "P8105 HW2"
+author: "Yuchen Zheng"
+date: "10/6/2021"
+output: html_document
+---
+
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+library(readxl)
+library(tidyr)
+```
+
+
+```{r}
+trash_df = 
+  read_excel("Trash_Wheel.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N535") %>%
+  janitor::clean_names() %>%
+  filter(dumpster != "NA") %>%
+  mutate(sports_balls = round(sports_balls, digits = 0))
+      
+```
+
+```{r}
+prcp_2018 = 
+  read_excel("Trash_Wheel.xlsx", sheet = "2018 Precipitation", skip = 1) %>%
+  drop_na() %>%
+  mutate(Year = 2018)
+```
+
+```{r}
+prcp_2019 = 
+  read_excel("Trash_Wheel.xlsx", sheet = "2019 Precipitation", skip = 1) %>%
+  drop_na() %>%
+  mutate(Year = 2019)
+```
+
+```{r}
+prcp_combine = 
+  full_join(prcp_2018, prcp_2019) %>%
+  janitor::clean_names() %>%
+  mutate(month = month.name[month])
+
+```
+
