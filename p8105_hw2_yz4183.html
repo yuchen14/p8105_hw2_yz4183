@@ -171,6 +171,8 @@ pre code {
 </div>
 
 
+<div id="problem-1" class="section level2">
+<h2>Problem 1</h2>
 <pre class="r"><code>trash_df = 
   read_excel(&quot;Trash_Wheel.xlsx&quot;, sheet = &quot;Mr. Trash Wheel&quot;, range = &quot;A2:N535&quot;) %&gt;%
   janitor::clean_names() %&gt;%
@@ -189,6 +191,76 @@ pre code {
   janitor::clean_names() %&gt;%
   mutate(month = month.name[month])</code></pre>
 <pre><code>## Joining, by = c(&quot;Month&quot;, &quot;Total&quot;, &quot;Year&quot;)</code></pre>
+</div>
+<div id="problem-2" class="section level2">
+<h2>Problem 2</h2>
+<p>First, clean the data in pols-month.csv. Use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.</p>
+<pre class="r"><code>pols_df = 
+  read_csv(&quot;fivethirtyeight_datasets/pols-month.csv&quot;) %&gt;%
+  separate(mon, into = c(&quot;year&quot;, &quot;month&quot;, &quot;day&quot;)) %&gt;%
+  mutate(month = as.numeric(month), year = as.numeric(year)) %&gt;%
+  mutate(month = month.name[month]) %&gt;%
+  mutate(president = ifelse(prez_gop == 0, &quot;dem&quot;, &quot;gop&quot;)) %&gt;%
+  select(-c(prez_dem, prez_gop, day))</code></pre>
+<pre><code>## Rows: 822 Columns: 9</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## dbl  (8): prez_gop, gov_gop, sen_gop, rep_gop, prez_dem, gov_dem, sen_dem, r...
+## date (1): mon</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>Second, clean the data in snp.csv using a similar process to the above. For consistency across datasets, arrange according to year and month, and organize so that year and month are the leading columns.</p>
+<pre class="r"><code>snp_df = 
+  read_csv(&quot;fivethirtyeight_datasets/snp.csv&quot;) %&gt;%
+  separate(date, into = c(&quot;month&quot;, &quot;day&quot;, &quot;year&quot;)) %&gt;%
+  mutate(month = as.numeric(month), year = as.numeric(year)) %&gt;%
+  mutate(year = ifelse(year &lt; 50, year + 2000, year + 1900)) %&gt;% 
+  arrange(year, month) %&gt;%
+  mutate(month = month.name[month]) %&gt;%
+  relocate(year, month)</code></pre>
+<pre><code>## Rows: 787 Columns: 2</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): date
+## dbl (1): close</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>Third, tidy the unemployment data so that it can be merged with the previous datasets. This process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.</p>
+<pre class="r"><code>unemployment_df = 
+  read_csv(&quot;fivethirtyeight_datasets/unemployment.csv&quot;) %&gt;%
+  rename(year = Year) %&gt;%
+  pivot_longer(Jan:Dec, names_to = &quot;month&quot;, values_to = &quot;pct_unemploy&quot;) %&gt;%
+  mutate(month = match(month, month.abb)) %&gt;% 
+  mutate(month = month.name[month])</code></pre>
+<pre><code>## Rows: 68 Columns: 13</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## dbl (13): Year, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>Join the datasets by merging snp into pols, and merging unemployment into the result.</p>
+<pre class="r"><code>result = 
+  left_join(x = pols_df, y = snp_df) %&gt;%
+  left_join(unemployment_df)</code></pre>
+<pre><code>## Joining, by = c(&quot;year&quot;, &quot;month&quot;)
+## Joining, by = c(&quot;year&quot;, &quot;month&quot;)</code></pre>
+</div>
+<div id="problem-3" class="section level2">
+<h2>problem 3</h2>
+<p>Load and tidy the data. Note that, although these data may seem fairly well formatted initially, the names of a categorical predictor and the case structure of string variables changed over time; you’ll need to address this in your data cleaning. Also, some rows seem duplicated, and these will need to be removed (hint: google something like “dplyr remove duplicate rows” to get started).</p>
+<pre class="r"><code>baby_names = read_csv(&quot;./Popular_Baby_Names.csv&quot;)</code></pre>
+<pre><code>## Rows: 19418 Columns: 6</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (3): Gender, Ethnicity, Child&#39;s First Name
+## dbl (3): Year of Birth, Count, Rank</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
 
 
 
