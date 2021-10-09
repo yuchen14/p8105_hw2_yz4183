@@ -2,9 +2,10 @@
 title: "P8105 HW2"
 author: "Yuchen Zheng"
 date: "10/6/2021"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
-
 
 ```{r, echo = FALSE, message = FALSE}
 library(tidyverse)
@@ -13,6 +14,15 @@ library(tidyr)
 ```
 
 ## Problem 1
+
+Read and clean the Mr. Trash Wheel sheet:   
+
+specify the sheet in the Excel file and to omit non-data entries (rows with notes / figures; columns containing notes)   
+
+using arguments in read_excel   
+use reasonable variable names   
+omit rows that do not include dumpster-specific data   
+round the number of sports balls to the nearest integer   
 ```{r}
 trash_df = 
   read_excel("Trash_Wheel.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N535") %>%
@@ -21,6 +31,8 @@ trash_df =
   mutate(sports_balls = round(sports_balls, digits = 0))
       
 ```
+
+Read and clean precipitation data for 2018 and 2019. For each, omit rows without precipitation data and add a variable for year. Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).  
 
 ```{r}
 prcp_2018 = 
@@ -40,9 +52,23 @@ prcp_2019 =
 prcp_combine = 
   full_join(prcp_2018, prcp_2019) %>%
   janitor::clean_names() %>%
-  mutate(month = month.name[month])
+  mutate(month = month.name[month]) %>%
+  relocate(year, month, total)
 
 ```
+
+```{r}
+sports_balls_2019 = 
+  trash_df %>%
+  filter(year == 2019)
+```
+
+Write a paragraph about these data; you are encouraged to use inline R. Be sure to note the number of observations in both resulting datasets, and give examples of key variables. For available data, what was the total precipitation in 2018? What was the median number of sports balls in a dumpster in 2019?
+
+The Mr.Trash Wheel dataset contains information about the number of each type of trash collected for each dumpster on a specific date. It contains `r nrow(trash_df)` observations and `r ncol(trash_df)` columns. The columns give the information about total weight and total volume of trash collected on that day. They also give information about the types trash collected which include plastic bottles, cigarette butts, grocery bags, etc. The median number of sports balls in a dumster in 2019 was `r median(pull(sports_balls_2019, sports_balls))`.
+
+The precipitation datasets contain information about the amount of rainfall in each month of a year. Both 2018 and 2019 precipitation datasets have `r nrow(prcp_2018)` observations and `r ncol(prcp_2018)` columns. The 2018 and 2019 combined precipitation dataset has `r nrow(prcp_combine)` observations and `r ncol(prcp_combine)` columns. 
+
 
 ## Problem 2
 
@@ -89,18 +115,32 @@ result =
   left_join(unemployment_df)
 
 ```
+Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).  
 
-## problem 3
+The pols_df dataset gives the information about the number of politicians who are democratic or republican at a specific month from `r min(pull(pols_df, year))` to `r max(pull(pols_df, year))`. It has `r nrow(pols_df)` rows and `r ncol(pols_df)` columns. The names of key variables in pols_df dataset are `r names(pols_df)`.  
+
+The snp_df dataset gives the information about the Standard & Poor's stock market index of a given day from `r min(pull(snp_df, year))` to `r max(pull(snp_df, year))`. It has `r nrow(snp_df)` rows and `r ncol(snp_df)` columns. The names of key variables in snp_df dataset are `r names(snp_df)`. 
+
+The unemployment_df dataset gives the information about the percentage of unemplyment in a given month from `r min(pull(unemployment_df, year))` to `r max(pull(unemployment_df, year))`. It has `r nrow(unemployment_df)` rows and `r ncol(unemployment_df)` columns. The names of key variables in unemployment_df dataset are `r names(unemployment_df)`.
+
+The resulting dataset contains combined information from the previous datasets, pols_df, snp_df and unemplyment_df. It has `r nrow(result)` observations from `r min(pull(result, year))` to `r max(pull(result, year))` and `r ncol(result)` columns. The names of key variables in the resulting dataset are `r names(result)`.
+
+
+## Problem 3
 
 Load and tidy the data. Note that, although these data may seem fairly well formatted initially, the names of a categorical predictor and the case structure of string variables changed over time; you’ll need to address this in your data cleaning. Also, some rows seem duplicated, and these will need to be removed (hint: google something like “dplyr remove duplicate rows” to get started).
 
 ```{r}
 baby_names_raw = 
     read_csv("./Popular_Baby_Names.csv") %>%
-    janitor::clean_names()
+    janitor::clean_names() 
+    
 
-unique(pull(baby_names_raw, ethnicity))
-unique(pull(baby_names_raw, childs_first_name))
+# check count of each ethnicity group
+baby_names_raw %>% group_by(ethnicity) %>% summarize(count = n())
+
+# check count of each name
+baby_names_raw %>% group_by(childs_first_name) %>% summarize(count = n())
 
 ```
 
@@ -129,6 +169,8 @@ olivia_df =
   select(year_of_birth, ethnicity, rank) %>%
   pivot_wider(names_from = "year_of_birth", values_from = "rank") %>%
   relocate(ethnicity, "2011", "2012", "2013", "2014", "2015", "2016")
+
+olivia_df
 ```
 
 Produce a similar table showing the most popular name among male children over time.
@@ -139,6 +181,8 @@ pop_boy_name =
   group_by(childs_first_name) %>% 
   summarise(total_count = sum(count)) %>%
   arrange(desc(total_count))
+
+head(pop_boy_name)
 ```
 
 ```{r}
@@ -148,6 +192,8 @@ ethan_df =
   select(year_of_birth, ethnicity, rank) %>%
   pivot_wider(names_from = "year_of_birth", values_from = "rank") %>%
   relocate(ethnicity, "2011", "2012", "2013", "2014", "2015", "2016")
+
+ethan_df
 ```
 
 Finally, for male, white non-hispanic children born in 2016, produce a scatter plot showing the number of children with a name (y axis) against the rank in popularity of that name (x axis)
