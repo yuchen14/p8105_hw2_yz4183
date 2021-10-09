@@ -180,17 +180,17 @@ use reasonable variable names<br />
 omit rows that do not include dumpster-specific data<br />
 round the number of sports balls to the nearest integer</p>
 <pre class="r"><code>trash_df = 
-  read_excel(&quot;Trash_Wheel.xlsx&quot;, sheet = &quot;Mr. Trash Wheel&quot;, range = &quot;A2:N535&quot;) %&gt;%
+  read_excel(&quot;./data/Trash_Wheel.xlsx&quot;, sheet = &quot;Mr. Trash Wheel&quot;, range = &quot;A2:N535&quot;) %&gt;%
   janitor::clean_names() %&gt;%
   filter(dumpster != &quot;NA&quot;) %&gt;%
   mutate(sports_balls = round(sports_balls, digits = 0))</code></pre>
 <p>Read and clean precipitation data for 2018 and 2019. For each, omit rows without precipitation data and add a variable for year. Next, combine precipitation datasets and convert month to a character variable (the variable month.name is built into R and should be useful).</p>
 <pre class="r"><code>prcp_2018 = 
-  read_excel(&quot;Trash_Wheel.xlsx&quot;, sheet = &quot;2018 Precipitation&quot;, skip = 1) %&gt;%
+  read_excel(&quot;./data/Trash_Wheel.xlsx&quot;, sheet = &quot;2018 Precipitation&quot;, skip = 1) %&gt;%
   drop_na() %&gt;%
   mutate(Year = 2018)</code></pre>
 <pre class="r"><code>prcp_2019 = 
-  read_excel(&quot;Trash_Wheel.xlsx&quot;, sheet = &quot;2019 Precipitation&quot;, skip = 1) %&gt;%
+  read_excel(&quot;./data/Trash_Wheel.xlsx&quot;, sheet = &quot;2019 Precipitation&quot;, skip = 1) %&gt;%
   drop_na() %&gt;%
   mutate(Year = 2019)</code></pre>
 <pre class="r"><code>prcp_combine = 
@@ -210,7 +210,7 @@ round the number of sports balls to the nearest integer</p>
 <h2>Problem 2</h2>
 <p>First, clean the data in pols-month.csv. Use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.</p>
 <pre class="r"><code>pols_df = 
-  read_csv(&quot;fivethirtyeight_datasets/pols-month.csv&quot;) %&gt;%
+  read_csv(&quot;./data/fivethirtyeight_datasets/pols-month.csv&quot;) %&gt;%
   separate(mon, into = c(&quot;year&quot;, &quot;month&quot;, &quot;day&quot;)) %&gt;%
   mutate(month = as.numeric(month), year = as.numeric(year)) %&gt;%
   mutate(month = month.name[month]) %&gt;%
@@ -226,7 +226,7 @@ round the number of sports balls to the nearest integer</p>
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>Second, clean the data in snp.csv using a similar process to the above. For consistency across datasets, arrange according to year and month, and organize so that year and month are the leading columns.</p>
 <pre class="r"><code>snp_df = 
-  read_csv(&quot;fivethirtyeight_datasets/snp.csv&quot;) %&gt;%
+  read_csv(&quot;./data/fivethirtyeight_datasets/snp.csv&quot;) %&gt;%
   separate(date, into = c(&quot;month&quot;, &quot;day&quot;, &quot;year&quot;)) %&gt;%
   mutate(month = as.numeric(month), year = as.numeric(year)) %&gt;%
   mutate(year = ifelse(year &lt; 50, year + 2000, year + 1900)) %&gt;% 
@@ -243,7 +243,7 @@ round the number of sports balls to the nearest integer</p>
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <p>Third, tidy the unemployment data so that it can be merged with the previous datasets. This process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.</p>
 <pre class="r"><code>unemployment_df = 
-  read_csv(&quot;fivethirtyeight_datasets/unemployment.csv&quot;) %&gt;%
+  read_csv(&quot;./data/fivethirtyeight_datasets/unemployment.csv&quot;) %&gt;%
   rename(year = Year) %&gt;%
   pivot_longer(Jan:Dec, names_to = &quot;month&quot;, values_to = &quot;pct_unemploy&quot;) %&gt;%
   mutate(month = match(month, month.abb)) %&gt;% 
@@ -271,7 +271,7 @@ round the number of sports balls to the nearest integer</p>
 <h2>Problem 3</h2>
 <p>Load and tidy the data. Note that, although these data may seem fairly well formatted initially, the names of a categorical predictor and the case structure of string variables changed over time; you’ll need to address this in your data cleaning. Also, some rows seem duplicated, and these will need to be removed (hint: google something like “dplyr remove duplicate rows” to get started).</p>
 <pre class="r"><code>baby_names_raw = 
-    read_csv(&quot;./Popular_Baby_Names.csv&quot;) %&gt;%
+    read_csv(&quot;./data/Popular_Baby_Names.csv&quot;) %&gt;%
     janitor::clean_names() </code></pre>
 <pre><code>## Rows: 19418 Columns: 6</code></pre>
 <pre><code>## ── Column specification ────────────────────────────────────────────────────────
